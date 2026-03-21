@@ -36,8 +36,8 @@ ALLOWED_ORIGINS = [
     "http://localhost:5500",
     "http://127.0.0.1:5500",
     "http://127.0.0.1:3000",
+    "https://glowing-faun-704609.netlify.app",
     FRONTEND_URL,  # Your deployed domain
-    # Add your production domain here, e.g., "https://yourdomain.com"
 ]
 
 app.add_middleware(
