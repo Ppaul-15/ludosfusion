@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: color-platform-api
+    env: python
+    plan: free
+    branch: main
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        scope: build,runtime
+        sync: false
+        value: postgresql://colorsfusions:zyw3JOqCfG61PpmnDctyGF9Spm6VthKA@dpg-d6v1q3lm5p6s73a324p0-a.singapore-postgres.render.com/ludosfusion
+      - key: FRONTEND_URL
+        scope: build,runtime
+        sync: false
+        value: https://glowing-faun-704609.netlify.app
+      - key: PORT
+        scope: build,runtime
+        sync: false
+        value: 8000
