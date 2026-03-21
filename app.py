@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, validator
 from datetime import datetime
 import os
 from dotenv import load_dotenv
@@ -82,8 +82,7 @@ class UserLogin(BaseModel):
     location: str
     email: str
 
-    @field_validator('name', 'designation', 'location', 'email')
-    @classmethod
+    @validator('name', 'designation', 'location', 'email')
     def validate_strings(cls, v):
         if isinstance(v, str):
             v = v.strip()
@@ -91,22 +90,20 @@ class UserLogin(BaseModel):
             raise ValueError('Field cannot be empty')
         return v
 
-    @field_validator('age')
-    @classmethod
+    @validator('age')
     def validate_age(cls, v):
         if v < 1 or v > 150:
             raise ValueError('Age must be between 1 and 150')
         return v
 
-    @field_validator('email')
-    @classmethod
+    @validator('email')
     def validate_email(cls, v):
         if '@' not in v or '.' not in v:
             raise ValueError('Invalid email format')
         return v.lower()
 
     class Config:
-        json_schema_extra = {
+        schema_extra = {
             "example": {
                 "name": "John Doe",
                 "age": 20,
@@ -127,7 +124,7 @@ class UserResponse(BaseModel):
     created_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 # Initialize Database
