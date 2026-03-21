@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator
 from datetime import datetime
 import os
 from dotenv import load_dotenv
@@ -17,10 +17,6 @@ DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "postgresql://postgres:password@localhost:5432/color_platform"
 )
-
-# Convert postgres:// to postgresql:// for SQLAlchemy 2.0
-if DATABASE_URL.startswith("postgres://"):
-    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 # Initialize FastAPI
 app = FastAPI(
@@ -82,7 +78,8 @@ class UserLogin(BaseModel):
     location: str
     email: str
 
-    @validator('name', 'designation', 'location', 'email')
+    @field_validator('name', 'designation', 'location', 'email')
+    @classmethod
     def validate_strings(cls, v):
         if isinstance(v, str):
             v = v.strip()
@@ -90,20 +87,22 @@ class UserLogin(BaseModel):
             raise ValueError('Field cannot be empty')
         return v
 
-    @validator('age')
+    @field_validator('age')
+    @classmethod
     def validate_age(cls, v):
         if v < 1 or v > 150:
             raise ValueError('Age must be between 1 and 150')
         return v
 
-    @validator('email')
+    @field_validator('email')
+    @classmethod
     def validate_email(cls, v):
         if '@' not in v or '.' not in v:
             raise ValueError('Invalid email format')
         return v.lower()
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "name": "John Doe",
                 "age": 20,
@@ -124,7 +123,7 @@ class UserResponse(BaseModel):
     created_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # Initialize Database
